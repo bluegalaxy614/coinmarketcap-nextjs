@@ -35,7 +35,7 @@ const HomeTable = ({ initialCoins }: HomeTableProps) => {
 			{
 				id: 'add-to-watchlist',
 				header: '',
-				cell: ({ row }) => (
+				cell: ({ row }: { row: { original: CoinOnWatchlist | CoinData } }) => (
 					<WatchlistButton
 						coinId={row.original.id}
 						isOnWatchlist={isOnWatchlist(row.original.id)}

@@ -5,7 +5,7 @@ const nextConfig = {
 		styledComponents: true,
 	},
 	images: {
-		domains: ['assets.coingecko.com', 'res.cloudinary.com'],
+		domains: ['assets.coingecko.com', 'res.cloudinary.com', 'coin-images.coingecko.com'],
 		formats: ['image/webp'],
 	},
 	async redirects() {

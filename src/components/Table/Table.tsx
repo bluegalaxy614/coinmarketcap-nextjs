@@ -9,7 +9,7 @@ import {
 } from '@tanstack/react-table';
 import { Table as StyledTable, TableWrapper } from './Table.styled';
 import { Container } from 'styled/elements/Container';
-import { useVirtual } from '@tanstack/react-virtual';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 export type TableColumn<T> = ColumnDef<T> & {
 	textAlign?: CSSProperties['textAlign'];
@@ -29,13 +29,14 @@ const Table = <T extends unknown>({ data, columns }: TableProps<T>) => {
 	const tableContainerRef = useRef<HTMLDivElement>(null);
 
 	const { rows } = table.getRowModel();
-	const rowVirtualizer = useVirtual({
-		parentRef: tableContainerRef,
-		size: rows.length,
+	const rowVirtualizer = useVirtualizer({
+		getScrollElement: () => tableContainerRef.current,
+		count: rows.length,
 		overscan: 10,
+		estimateSize: () => 40,
 	});
-
-	const { virtualItems: virtualRows, totalSize } = rowVirtualizer;
+	const virtualRows = rowVirtualizer.getVirtualItems();
+	const totalSize = rowVirtualizer.getTotalSize();
 
 	const paddingTop = virtualRows.length > 0 ? virtualRows?.[0]?.start || 0 : 0;
 	const paddingBottom =
@@ -62,9 +63,9 @@ const Table = <T extends unknown>({ data, columns }: TableProps<T>) => {
 										{header.isPlaceholder
 											? null
 											: flexRender(
-													header.column.columnDef.header,
-													header.getContext()
-											  )}
+												header.column.columnDef.header,
+												header.getContext()
+											)}
 									</th>
 								))}
 							</tr>
@@ -80,23 +81,21 @@ const Table = <T extends unknown>({ data, columns }: TableProps<T>) => {
 							const row = rows[virtualRow.index] as Row<T>;
 							return (
 								<tr key={row.id}>
-									{row.getVisibleCells().map((cell) => {
-										return (
-											<td
-												style={{
-													width: cell.column.getSize() + 'px',
-													textAlign: (cell.column.columnDef as TableColumn<T>)
-														.textAlign,
-												}}
-												key={cell.id}
-											>
-												{flexRender(
-													cell.column.columnDef.cell,
-													cell.getContext()
-												)}
-											</td>
-										);
-									})}
+									{row.getVisibleCells().map((cell) => (
+										<td
+											style={{
+												width: cell.column.getSize() + 'px',
+												textAlign: (cell.column.columnDef as TableColumn<T>)
+													.textAlign,
+											}}
+											key={cell.id}
+										>
+											{flexRender(
+												cell.column.columnDef.cell,
+												cell.getContext()
+											)}
+										</td>
+									))}
 								</tr>
 							);
 						})}
